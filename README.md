@@ -2,6 +2,7 @@
 
 A **microservices-based** high-performance inference server system supporting multiple ML frameworks with OpenAI-compatible APIs.
 The system allows multiple models to run on the same physical card, utilizing all the VRAM available.
+Internded for Kubernetes deployment with Podman containers.
 
 ## Supported Engines
 
