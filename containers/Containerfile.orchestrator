@@ -1,0 +1,67 @@
+# LLM Tensor Server - Podman Container Image
+FROM docker.io/nvidia/cuda:12.6.1-cudnn-devel-ubuntu22.04
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    TZ=UTC \
+    APP_ENVIRONMENT=prod
+
+# Install system dependencies and add deadsnakes PPA for Python 3.12
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update \
+    && apt-get install -y \
+    python3.12 \
+    python3.12-venv \
+    python3.12-dev \
+    python3-pip \
+    build-essential \
+    git \
+    wget \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create Python virtual environment
+RUN python3.12 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Upgrade pip
+RUN pip install --upgrade pip
+
+# Copy orchestrator requirements only (minimal dependencies)
+COPY requirements/orchestrator.txt /app/requirements/
+
+# Install Python dependencies (orchestrator needs minimal deps only)
+RUN pip install -r requirements/orchestrator.txt
+
+# Copy application source code
+COPY src/ /app/src/
+COPY resources/ /app/resources/
+
+# Copy configuration files
+COPY .env.example /app/.env
+COPY .claude/CLAUDE.md /app/CLAUDE.md
+COPY README.md /app/README.md
+
+# Create models directory
+RUN mkdir -p /app/models
+
+# Set Python path
+ENV PYTHONPATH="/app:${PYTHONPATH}"
+
+# Expose ports
+EXPOSE 8011
+EXPOSE 8012
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8011/health || exit 1
+
+# Default command - Orchestrator service for microservices
+CMD ["python", "-m", "src.orchestrator.main"]

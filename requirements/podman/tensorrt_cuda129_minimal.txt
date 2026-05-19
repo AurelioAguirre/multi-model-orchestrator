@@ -1,0 +1,74 @@
+--extra-index-url https://download.pytorch.org/whl/cu129
+
+# Security constraint (merged from constraints.txt - CVE fix)
+protobuf>=4.25.8
+
+# Core TensorRT-LLM
+tensorrt-llm
+tensorrt
+
+# Essential CUDA 12.9 packages (locked)
+nvidia-cuda-runtime-cu12>=12.9.1
+nvidia-cuda-cupti-cu12>=12.9.1
+nvidia-cuda-nvrtc-cu12>=12.9.1
+nvidia-cudnn-cu12>=9.5.1
+nvidia-cublas-cu12>=12.9.1
+nvidia-cufft-cu12>=11.3.0
+nvidia-cufile-cu12>=1.11.1
+nvidia-curand-cu12>=10.3.7
+nvidia-cusolver-cu12>=11.7.1
+nvidia-cusparse-cu12>=12.5.4
+nvidia-cusparselt-cu12>=0.6.3
+nvidia-nvjitlink-cu12>=12.9.1
+nvidia-nvtx-cu12>=12.9.1
+
+# PyTorch ecosystem (let pip resolve versions)
+torch
+torchvision
+triton
+
+# ML framework essentials
+transformers
+accelerate
+datasets
+tokenizers
+huggingface-hub
+safetensors
+
+# NVIDIA specific
+nvidia-ml-py
+nvidia-nccl-cu12
+nvidia-modelopt[torch]
+
+# Core dependencies
+numpy
+onnx
+onnx_graphsurgeon
+cuda-python
+mpi4py
+psutil
+pandas
+h5py
+sentencepiece
+tiktoken
+tqdm
+einops
+diffusers
+optimum
+peft
+evaluate
+
+# FastAPI stack
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+
+# Build tools
+build
+colored
+lark
+pulp
+StrEnum
+polygraphy
+openai

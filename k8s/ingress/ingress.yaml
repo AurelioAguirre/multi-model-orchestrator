@@ -1,0 +1,28 @@
+# Optional: Ingress for production use with Traefik or NGINX Ingress Controller
+# This is NOT required for initial setup - use NodePort service instead
+# Deploy this only after installing an ingress controller
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: llm-orchestrator-ingress
+  namespace: llm-inference
+  annotations:
+    # For Traefik:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    # For NGINX Ingress:
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+  labels:
+    app: llm-tensor-server
+spec:
+  rules:
+  - host: llm.local  # Change to your domain or leave for testing
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: llm-orchestrator
+            port:
+              number: 8011

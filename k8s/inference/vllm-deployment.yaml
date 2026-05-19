@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-vllm
+  namespace: llm-inference
+  labels:
+    app: llm-vllm
+    component: inference-engine
+    engine: vllm
+spec:
+  replicas: 0  # Start with 0, scale up when needed
+  selector:
+    matchLabels:
+      app: llm-vllm
+  template:
+    metadata:
+      labels:
+        app: llm-vllm
+        component: inference-engine
+        engine: vllm
+    spec:
+      containers:
+      - name: vllm
+        image: 192.168.100.33:5000/llm-vllm:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8013
+          name: http
+        env:
+        - name: HF_HOME
+          value: "/app/models"
+        - name: PYTHONPATH
+          value: "/app"
+        - name: VLLM_SERVICE_PORT
+          value: "8013"
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0"
+        - name: PYTORCH_CUDA_ALLOC_CONF
+          value: "expandable_segments:True"
+        volumeMounts:
+        - name: models
+          mountPath: /app/models
+        - name: config
+          mountPath: /app/resources
+        resources:
+          requests:
+            memory: "8Gi"
+            cpu: "2000m"
+            nvidia.com/gpu: 1
+          limits:
+            memory: "16Gi"
+            cpu: "4000m"
+            nvidia.com/gpu: 1
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8013
+          initialDelaySeconds: 60
+          periodSeconds: 300
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8013
+          initialDelaySeconds: 30
+          periodSeconds: 300
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: llm-models-pvc
+      - name: config
+        configMap:
+          name: llm-config
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule

@@ -1,0 +1,121 @@
+# TensorRT-LLM Inference Server Configuration
+app_name: "TensorRT-LLM Server"
+version: "1.0.0"
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8011
+  log_level: "info"  # For uvicorn server logs (debug, info, warning, error)
+  access_log: true
+
+# Model Configuration
+model:
+  # Base directory where models are stored
+  base_dir: "./models"
+  
+  # Default model to load - can be:
+  # - HuggingFace model ID: "openai/gpt-oss-20b" (uses cache automatically)  
+  # - Relative path: "openai/gpt-oss-20b" (looks in models/openai/gpt-oss-20b/)
+  # - Absolute path: "/full/path/to/model"
+  default_model: "openai/gpt-oss-20b"
+  
+  # Model constraints
+  max_batch_size: 8
+  max_input_length: 2048
+  max_output_length: 1024
+  
+
+# Engine Configuration
+engine:
+  # Engine type: auto, transformers, tensorrt, tensorrt-runner, vllm, vllm-async
+  type: "auto"  # auto-detect best available engine
+  
+  # Chat template: default, llama, chatml, vicuna
+  chat_template: "default"
+  
+  # Engine-specific settings
+  transformers:
+    # Use torch.compile for faster inference
+    torch_compile: false
+    # Load in 8bit/16bit
+    load_in_8bit: false
+    load_in_4bit: false
+    
+  vllm:
+    # Maximum number of batched tokens
+    max_num_batched_tokens: 4096
+    # Enable prefix caching
+    enable_prefix_caching: true
+    
+  tensorrt:
+    # Use CUDA graphs for better performance
+    use_cuda_graph: true
+
+# Inference Configuration
+inference:
+  # Default sampling parameters
+  default_temperature: 0.7
+  default_top_p: 0.9
+  default_top_k: 50
+  default_max_tokens: 512
+  
+  # Generation constraints
+  min_length: 1
+  max_new_tokens: 1024
+  
+  # Stop sequences (can be overridden per request)
+  default_stop_sequences: []
+  
+  # Penalty settings
+  repetition_penalty: 1.0
+  length_penalty: 1.0
+
+# Hardware Configuration
+hardware:
+  # GPU settings
+  gpu_memory_fraction: 0.9
+  
+  # Multi-GPU settings (for tensor parallelism)
+  world_size: 2  # Number of GPUs to use
+  rank: 0        # Current GPU rank (for multi-node)
+  
+  # Memory optimization
+  enable_kv_cache: true
+  kv_cache_free_gpu_mem_fraction: 0.4
+  
+  # Performance tuning
+  use_cuda_graph: true
+  max_tokens_in_paged_kv_cache: 2048
+
+# Logging Configuration (for application loggers)
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: null  # Set to a file path to enable file logging (null = console only)
+  
+# API Configuration
+api:
+  # OpenAI compatibility
+  openai_compatible: true
+  
+  # Rate limiting (requests per minute)
+  rate_limit_rpm: 60
+  
+  # Request timeout (seconds)
+  request_timeout: 300
+  
+  # Enable CORS
+  enable_cors: true
+  cors_origins: ["*"]
+  
+  # Test endpoint question
+  test_question: "Tell me about yourself"
+
+# Health Check Configuration
+health:
+  # GPU memory threshold for healthy status (percentage)
+  gpu_memory_threshold: 95
+  
+  # Model load timeout (seconds)
+  model_load_timeout: 300

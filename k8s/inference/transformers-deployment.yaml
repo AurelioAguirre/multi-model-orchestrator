@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-transformers
+  namespace: llm-inference
+  labels:
+    app: llm-transformers
+    component: inference-engine
+    engine: transformers
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-transformers
+  template:
+    metadata:
+      labels:
+        app: llm-transformers
+        component: inference-engine
+        engine: transformers
+    spec:
+      containers:
+      - name: transformers
+        image: 192.168.100.33:5000/llm-transformers:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8012
+          name: http
+        env:
+        - name: HF_HOME
+          value: "/app/models"
+        - name: PYTHONPATH
+          value: "/app"
+        - name: TRANSFORMERS_SERVICE_PORT
+          value: "8012"
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0"
+        - name: PYTORCH_CUDA_ALLOC_CONF
+          value: "expandable_segments:True"
+        volumeMounts:
+        - name: models
+          mountPath: /app/models
+        - name: config
+          mountPath: /app/resources
+        resources:
+          requests:
+            memory: "8Gi"
+            cpu: "2000m"
+            nvidia.com/gpu: 1
+          limits:
+            memory: "16Gi"
+            cpu: "4000m"
+            nvidia.com/gpu: 1
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8012
+          initialDelaySeconds: 60
+          periodSeconds: 300
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8012
+          initialDelaySeconds: 30
+          periodSeconds: 300
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: llm-models-pvc
+      - name: config
+        configMap:
+          name: llm-config
+      ## GPU-specific tolerations (if needed)
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule

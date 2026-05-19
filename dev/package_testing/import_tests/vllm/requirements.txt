@@ -1,0 +1,61 @@
+# vLLM Test Requirements - No Version Pins
+# Core web framework
+fastapi
+uvicorn[standard]
+httpx
+requests
+
+# Configuration and utilities
+pydantic
+PyYAML
+python-dotenv
+python-multipart
+
+# Core ML dependencies
+torch
+torchaudio
+torchvision
+transformers
+tokenizers
+huggingface-hub
+safetensors
+accelerate
+
+# vLLM from PyPI (we'll test custom wheel separately)
+vllm
+
+# vLLM-specific dependencies
+triton
+xgrammar
+xformers
+
+# Numeric computing
+numpy
+scipy
+cupy-cuda12x
+
+# Additional vLLM dependencies
+aiohttp
+aiosignal
+attrs
+blake3
+cachetools
+einops
+fastrlock
+frozenlist
+interegular
+jiter
+lark
+llguidance
+llvmlite
+numba
+nvidia-ml-py
+pandas
+ray
+sentencepiece
+tiktoken
+
+# Logging and monitoring
+python-json-logger
+prometheus-fastapi-instrumentator
+prometheus_client

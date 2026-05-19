@@ -1,0 +1,54 @@
+# Transformers Microservice Podmanfile
+FROM docker.io/nvidia/cuda:12.6.1-cudnn-devel-ubuntu22.04
+
+# Set timezone to avoid interactive tzdata prompt
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+# Install system packages
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    wget \
+    curl \
+    git \
+    build-essential \
+    tzdata \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update \
+    && apt-get install -y python3.12 python3.12-dev python3.12-venv \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pip for Python 3.12
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
+
+# Set Python 3.12 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
+
+# Set working directory
+WORKDIR /app
+
+# Copy standalone requirements for this service
+COPY requirements/podman/transformers.txt /app/requirements/
+
+# Install Python dependencies (standalone requirements)
+RUN pip install --no-cache-dir -r requirements/transformers.txt
+
+# Copy source code
+COPY src/ /app/src/
+COPY resources/ /app/resources/
+
+# Create models directory
+RUN mkdir -p /app/models
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV HF_HOME=/app/models
+ENV TRANSFORMERS_SERVICE_PORT=8012
+
+# Expose port
+EXPOSE 8012
+
+# Run the service
+CMD ["python", "-m", "src.transformers.main"]

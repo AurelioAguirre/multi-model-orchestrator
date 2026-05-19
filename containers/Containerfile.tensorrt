@@ -1,0 +1,68 @@
+# TensorRT-LLM Microservice Podmanfile
+FROM docker.io/nvidia/cuda:12.9.0-cudnn-devel-ubuntu24.04
+
+# Set timezone to avoid interactive tzdata prompt
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+# Install system packages including MPI libraries for TensorRT-LLM
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    wget \
+    curl \
+    git \
+    build-essential \
+    tzdata \
+    libopenmpi-dev \
+    libopenmpi3 \
+    openmpi-bin \
+    openmpi-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update \
+    && apt-get install -y python3.12 python3.12-dev python3.12-venv \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pip through package manager (Ubuntu 24.04 way)
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3.12-venv \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Python 3.12 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
+
+# Set working directory
+WORKDIR /app
+
+# Copy standalone requirements for this service (CUDA 12.9 container + CUDA 12.8 PyTorch)
+COPY requirements/podman/tensorrt_cuda129_compatible.txt /app/requirements/tensorrt.txt
+
+# Create virtual environment to avoid system package conflicts
+RUN python3 -m venv /opt/tensorrt-env
+
+# Use virtual environment for all Python operations
+ENV PATH="/opt/tensorrt-env/bin:$PATH"
+
+# Install Python dependencies in virtual environment
+RUN pip install --no-cache-dir -r requirements/tensorrt.txt
+
+# Copy source code
+COPY src/ /app/src/
+COPY resources/ /app/resources/
+
+# Create models directory
+RUN mkdir -p /app/models
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV HF_HOME=/app/models
+ENV TENSORRT_SERVICE_PORT=8014
+
+# Expose port
+EXPOSE 8014
+
+# Run the service
+CMD ["python", "-m", "src.tensorrt.main"]

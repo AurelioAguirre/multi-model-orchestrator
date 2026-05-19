@@ -1,0 +1,44 @@
+# TensorRT-LLM Test Requirements - No Version Pins
+# Defined versions:
+torch==2.7.1
+transformers==4.55.0
+xgrammar==0.1.21
+triton==3.3.1
+vllm
+
+# Core web framework  
+fastapi
+uvicorn[standard]
+httpx
+requests
+
+# Configuration and utilities
+pydantic
+PyYAML
+python-dotenv
+python-multipart
+
+# Core ML dependencies
+torchaudio
+torchvision
+tokenizers
+huggingface-hub
+safetensors
+accelerate
+# vLLM from PyPI (compatible version for TensorRT)
+
+# Numeric computing (TensorRT needs numpy<2)
+numpy<2
+scipy
+
+# Additional ML utilities
+einops
+sentencepiece
+tiktoken
+gguf
+
+# CUDA support
+cupy-cuda12x
+
+# Logging and monitoring
+python-json-logger

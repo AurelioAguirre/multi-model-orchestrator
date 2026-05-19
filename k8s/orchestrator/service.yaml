@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-orchestrator
+  namespace: llm-inference
+  labels:
+    app: llm-orchestrator
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8011
+    targetPort: 8011
+    protocol: TCP
+    name: http
+  selector:
+    app: llm-orchestrator

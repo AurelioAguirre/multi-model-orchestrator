@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-tensorrt
+  namespace: llm-inference
+  labels:
+    app: llm-tensorrt
+    component: inference-engine
+    engine: tensorrt
+spec:
+  replicas: 0  # Start with 0, scale up when needed
+  selector:
+    matchLabels:
+      app: llm-tensorrt
+  template:
+    metadata:
+      labels:
+        app: llm-tensorrt
+        component: inference-engine
+        engine: tensorrt
+    spec:
+      containers:
+      - name: tensorrt
+        image: 192.168.100.33:5000/llm-tensorrt:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8014
+          name: http
+        env:
+        - name: HF_HOME
+          value: "/app/models"
+        - name: PYTHONPATH
+          value: "/app"
+        - name: TENSORRT_SERVICE_PORT
+          value: "8014"
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0"
+        - name: PYTORCH_CUDA_ALLOC_CONF
+          value: "expandable_segments:True"
+        volumeMounts:
+        - name: models
+          mountPath: /app/models
+        - name: config
+          mountPath: /app/resources
+        resources:
+          requests:
+            memory: "12Gi"
+            cpu: "3000m"
+            nvidia.com/gpu: 1
+          limits:
+            memory: "20Gi"
+            cpu: "6000m"
+            nvidia.com/gpu: 1
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8014
+          initialDelaySeconds: 90
+          periodSeconds: 300
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8014
+          initialDelaySeconds: 45
+          periodSeconds: 300
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: llm-models-pvc
+      - name: config
+        configMap:
+          name: llm-config
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule

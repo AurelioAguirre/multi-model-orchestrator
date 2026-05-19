@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: llm-inference
+  labels:
+    name: llm-inference
+    app: llm-tensor-server

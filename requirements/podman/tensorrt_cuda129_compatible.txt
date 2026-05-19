@@ -1,0 +1,58 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
+
+# Security constraint (merged from constraints.txt - CVE fix)
+protobuf>=4.25.8
+
+# Core TensorRT-LLM 1.0.0 (stable PyPI version)
+tensorrt-llm
+tensorrt
+
+# PyTorch ecosystem (CUDA 12.8 build works with CUDA 12.9 runtime via forward compatibility)
+torch
+torchvision
+
+# ML framework essentials
+transformers
+accelerate
+datasets
+tokenizers
+huggingface-hub
+safetensors
+
+# NVIDIA specific (let torch handle CUDA runtime versions)
+nvidia-ml-py
+nvidia-nccl-cu12
+nvidia-modelopt[torch]
+
+# Core dependencies
+numpy
+onnx
+onnx_graphsurgeon
+cuda-python
+mpi4py
+psutil
+pandas
+h5py
+sentencepiece
+tiktoken
+tqdm
+einops
+diffusers
+optimum
+peft
+evaluate
+
+# FastAPI stack
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+
+# Build tools
+build
+colored
+lark
+pulp
+StrEnum
+polygraphy
+openai

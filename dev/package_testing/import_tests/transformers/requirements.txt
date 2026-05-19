@@ -1,0 +1,37 @@
+# Transformers Test Requirements - No Version Pins
+# Core web framework
+fastapi
+uvicorn[standard]
+httpx
+requests
+
+# Configuration and utilities
+pydantic
+PyYAML
+python-dotenv
+python-multipart
+
+# HuggingFace Transformers ecosystem
+transformers
+torch
+torchaudio
+torchvision
+tokenizers
+huggingface-hub
+safetensors
+
+# Accelerate for efficient loading
+accelerate
+
+# Additional ML utilities
+numpy
+scipy
+scikit-learn
+Pillow
+
+# Logging and monitoring
+python-json-logger
+
+# Model format support
+gguf
+sentencepiece

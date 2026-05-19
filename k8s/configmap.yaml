@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-config
+  namespace: llm-inference
+data:
+  config.yml: |
+    ## TensorRT-LLM Inference Server Configuration
+    app_name: "TensorRT-LLM Server"
+    version: "1.0.0"
+
+    ## Server Configuration
+    server:
+      host: "0.0.0.0"
+      port: 8011
+      log_level: "info"
+      access_log: true
+
+    ## Model Configuration
+    model:
+      base_dir: "/app/models"
+      default_model: "openai/gpt-oss-20b"
+      max_batch_size: 8
+      max_input_length: 2048
+      max_output_length: 1024
+
+    ## Engine Configuration
+    engine:
+      type: "auto"
+      chat_template: "default"
+      transformers:
+        torch_compile: false
+        load_in_8bit: false
+        load_in_4bit: false
+      vllm:
+        max_num_batched_tokens: 4096
+        enable_prefix_caching: true
+      tensorrt:
+        use_cuda_graph: true
+
+    ## Inference Configuration
+    inference:
+      default_temperature: 0.7
+      default_top_p: 0.9
+      default_top_k: 50
+      default_max_tokens: 512
+      min_length: 1
+      max_new_tokens: 1024
+      default_stop_sequences: []
+      repetition_penalty: 1.0
+      length_penalty: 1.0
+
+    ## Hardware Configuration (single GPU for now)
+    hardware:
+      gpu_memory_fraction: 0.9
+      world_size: 1  ## Single GPU per inference pod
+      rank: 0
+      enable_kv_cache: true
+      kv_cache_free_gpu_mem_fraction: 0.4
+      use_cuda_graph: true
+      max_tokens_in_paged_kv_cache: 2048
+
+    ## Logging Configuration
+    logging:
+      level: "INFO"
+      format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+      file: null
+
+    ## API Configuration
+    api:
+      openai_compatible: true
+      rate_limit_rpm: 60
+      request_timeout: 300
+      enable_cors: true
+      cors_origins: ["*"]
+      test_question: "Tell me about yourself"
+
+    ## Health Check Configuration
+    health:
+      gpu_memory_threshold: 95
+      model_load_timeout: 300

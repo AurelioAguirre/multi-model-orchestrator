@@ -1,0 +1,56 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
+
+# Security constraint (merged from constraints.txt - CVE fix)
+protobuf>=4.25.8
+
+# NOTE: PyTorch and TensorRT-LLM wheel are installed separately in Containerfile
+# to avoid triton version conflict (tensorrt-llm wants 3.3.1, pytorch 2.8 needs 3.4.0)
+
+# TensorRT base library
+tensorrt
+
+# ML framework essentials
+transformers
+accelerate
+datasets
+tokenizers
+huggingface-hub
+safetensors
+
+# NVIDIA specific (let torch handle CUDA runtime versions)
+nvidia-ml-py
+nvidia-nccl-cu12
+nvidia-modelopt[torch]
+
+# Core dependencies
+numpy
+onnx
+onnx_graphsurgeon
+cuda-python
+mpi4py
+psutil
+pandas
+h5py
+sentencepiece
+tiktoken
+tqdm
+einops
+diffusers
+optimum
+peft
+evaluate
+
+# FastAPI stack
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+
+# Build tools
+build
+colored
+lark
+pulp
+StrEnum
+polygraphy
+openai

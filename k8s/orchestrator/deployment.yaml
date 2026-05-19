@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-orchestrator
+  namespace: llm-inference
+  labels:
+    app: llm-orchestrator
+    component: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-orchestrator
+  template:
+    metadata:
+      labels:
+        app: llm-orchestrator
+        component: api-gateway
+    spec:
+      containers:
+      - name: orchestrator
+        image: 192.168.100.33:5000/llm-orchestrator:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8011
+          name: http
+        env:
+        - name: HF_HOME
+          value: "/app/models"
+        - name: PYTHONPATH
+          value: "/app"
+        - name: TRANSFORMERS_SERVICE_URL
+          value: "http://llm-transformers:8012"
+        - name: VLLM_SERVICE_URL
+          value: "http://llm-vllm:8013"
+        - name: TENSORRT_SERVICE_URL
+          value: "http://llm-tensorrt:8014"
+        volumeMounts:
+        - name: models
+          mountPath: /app/models
+        - name: config
+          mountPath: /app/resources
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8011
+          initialDelaySeconds: 30
+          periodSeconds: 300
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8011
+          initialDelaySeconds: 10
+          periodSeconds: 300
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: llm-models-pvc
+      - name: config
+        configMap:
+          name: llm-config

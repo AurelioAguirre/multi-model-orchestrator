@@ -1,0 +1,10 @@
+  machine:
+    registries:
+      mirrors:
+        192.168.100.33:5000:
+          endpoints:
+            - http://192.168.100.33:5000
+      config:
+        192.168.100.33:5000:
+          tls:
+            insecureSkipVerify: true
