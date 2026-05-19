@@ -1,6 +1,7 @@
 # LLM Tensor Server
 
-A **microservices-based** high-performance inference server supporting multiple ML frameworks with OpenAI-compatible APIs.
+A **microservices-based** high-performance inference server system supporting multiple ML frameworks with OpenAI-compatible APIs.
+The system allows multiple models to run on the same physical card, utilizing all the VRAM available.
 
 ## Supported Engines
 
